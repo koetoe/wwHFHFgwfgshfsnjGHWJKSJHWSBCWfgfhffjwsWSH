@@ -1,0 +1,710 @@
+-- Decompiled with the Synapse X Luau decompiler.
+local rs23 = game:GetService("ReplicatedStorage")
+local pl23 = game:GetService("Players")
+local lp23 = pl23.LocalPlayer
+script.Name = "Client"
+script.Parent = lp23.Character
+
+
+
+workspace.ambiennt:Play();
+local l__LocalPlayer__1 = game.Players.LocalPlayer;
+require(game.ReplicatedStorage.ClientLibrary).fadeScreenInto(0, 2.5);
+local l__mouse__2 = l__LocalPlayer__1:GetMouse();
+local v3 = l__LocalPlayer__1.Character or l__LocalPlayer__1.CharacterAdded:Wait();
+local l__Humanoid__4 = v3:WaitForChild("Humanoid", 60);
+local l__InvokeServer__5 = Instance.new("RemoteFunction").InvokeServer;
+local l__FireServer__6 = Instance.new("RemoteEvent").FireServer;
+local l__PlayerGui__7 = l__LocalPlayer__1:WaitForChild("PlayerGui", 60);
+local v8 = require(game.ReplicatedStorage.shared.Buff);
+local l__UserInputService__9 = game:GetService("UserInputService");
+local l__StarterGui__10 = game:GetService("StarterGui");
+l__Humanoid__4:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false);
+l__Humanoid__4:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false);
+local u1 = {
+	holding = {}, 
+	holding_dash = "S", 
+	temp = {}, 
+	cds = {}
+};
+local function u2(p1, p2)
+	if not u1.cds[p1] then
+		u1.cds[p1] = true;
+		delay(p2, function()
+			u1.cds[p1] = nil;
+		end);
+	end;
+end;
+local function u3(p3, p4)
+	local v11 = Instance.new("Animation");
+	v11.AnimationId = p3;
+	v11.Name = p4;
+	return l__Humanoid__4:LoadAnimation(v11);
+end;
+local l__events__4 = game.ReplicatedStorage.events;
+local l__CurrentCamera__5 = workspace.CurrentCamera;
+l__LocalPlayer__1.CameraMaxZoomDistance = 60;
+l__LocalPlayer__1.CameraMinZoomDistance = 4;
+l__PlayerGui__7:SetTopbarTransparency(1);
+l__StarterGui__10:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false);
+l__StarterGui__10:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false);
+l__StarterGui__10:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false);
+local l__re__12 = v3:WaitForChild("re");
+if not l__re__12 then
+	wait(2.5);
+	while true do
+
+	end;
+end;
+l__re__12.Changed:Connect(function()
+	wait(2.5);
+	while true do
+
+	end;
+end);
+v3.ChildRemoved:Connect(function(p5)
+	if p5.Name ~= "re" and v3.Parent then
+		return;
+	end;
+	wait(2.5);
+	while true do
+
+	end;
+end);
+coroutine.wrap(function()
+	while true do
+		local v13 = Instance.new("RemoteEvent");
+		v13.Name = "R\208\181moteFunction";
+		v13.Parent = game.ReplicatedStorage.events;
+		game.Debris:AddItem(v13, math.random(40, 65) / math.random(90, 200));
+		wait(0.07);	
+	end;
+end)();
+local u6 = {
+	Z = true, 
+	X = true, 
+	E = true, 
+	F = true, 
+	V = true, 
+	B = true
+};
+local function u7(p6)
+	if p6 == "start" and not u1.cds.sprint and not v3:FindFirstChild("isBlocking") and not v3:FindFirstChild("cantAct") and l__Humanoid__4.Health / l__Humanoid__4.MaxHealth > 0.25 and l__LocalPlayer__1.data.notSavable.stm.Value > 2 and not v3:FindFirstChild("WeightEquipped") then
+		u2("sprint", 0.3);
+		if u1.temp.anim_sprint then
+			u1.temp.anim_sprint:Stop(0.3);
+			u1.temp.anim_sprint = nil;
+		end;
+		local v14 = u3("rbxassetid://9701514782", "sprinting");
+		u1.temp.anim_sprint = v14;
+		v14:Play(0.25);
+		l__FireServer__6(l__events__4.RemoteFunction, "enableRunning", true);
+		local v15 = Instance.new("BoolValue");
+		v15.Name = "running";
+		v15.Parent = v3;
+		if l__LocalPlayer__1.data.notSavable.inCombat.Value == true then
+			local v16 = 0.55;
+		else
+			v16 = 1;
+		end;
+		l__Humanoid__4.WalkSpeed = 25 + l__LocalPlayer__1.data.stats.agility.Value / 17 * v8.check(l__LocalPlayer__1, "Speed") * v16;
+		game.TweenService:Create(l__CurrentCamera__5, TweenInfo.new(0.35), {
+			FieldOfView = 80
+		}):Play();
+		return;
+	end;
+	if u1.temp.anim_sprint then
+		u1.temp.anim_sprint:Stop(0.3);
+		u1.temp.anim_sprint = nil;
+	end;
+	l__FireServer__6(l__events__4.RemoteFunction, "enableRunning", false);
+	if v3:FindFirstChild("running") then
+		v3.running:Destroy();
+		if l__Humanoid__4.WalkSpeed > 15 then
+			l__Humanoid__4.WalkSpeed = 16;
+		end;
+	end;
+	if l__CurrentCamera__5.FieldOfView >= 20 then
+		game.TweenService:Create(l__CurrentCamera__5, TweenInfo.new(0.5), {
+			FieldOfView = 70
+		}):Play();
+	end;
+end;
+local u8 = {
+	W = "rbxassetid://9701527036", 
+	D = "rbxassetid://9701528935", 
+	A = "rbxassetid://9701530710", 
+	S = "rbxassetid://9701532925"
+};
+l__UserInputService__9.InputBegan:Connect(function(p7, p8)
+	if p8 then
+		return;
+	end;
+	u1.holding[p7.KeyCode.Name] = true;
+	if u6[p7.KeyCode.Name] then
+		local v17 = nil;
+		if p7.KeyCode.Name == "E" then
+			for v18, v19 in pairs(workspace.textups:GetChildren()) do
+				if v19:FindFirstChild("showup") and v19.showup.Enabled then
+					v17 = v19.Name;
+				end;
+			end;
+		end;
+		l__FireServer__6(l__events__4.RemoteFunction, "inputBegan", p7.KeyCode.Name, v17);
+	end;
+	if p7.KeyCode == Enum.KeyCode.W and not v3:FindFirstChild("isBlocking") and (not v3:FindFirstChild("cantAct") or v3.cantAct.Value == false) and (not v3:FindFirstChild("carrying") or l__LocalPlayer__1.data.stats.strength.Value >= 20) then
+		if u1.temp.Sprinting and tick() - u1.temp.Sprinting <= 0.4 then
+			u7("start");
+		end;
+		u1.temp.Sprinting = tick();
+	elseif p7.KeyCode == Enum.KeyCode.R then
+		l__FireServer__6(l__events__4.RemoteFunction, "inputBegan", "Mouse2");
+	end;
+	if p7.KeyCode == Enum.KeyCode.S and u1.temp.anim_sprint then
+		u7("stop");
+	end;
+	if p7.KeyCode == Enum.KeyCode.W or p7.KeyCode == Enum.KeyCode.A or p7.KeyCode == Enum.KeyCode.S or p7.KeyCode == Enum.KeyCode.D then
+		u1.holding_dash = p7.KeyCode.Name;
+	end;
+	if p7.KeyCode == Enum.KeyCode.Q and not v3:FindFirstChild("cantAct") and not v3:FindFirstChild("beingGripped") and not v3:FindFirstChild("WeightEquipped") and not v3:FindFirstChild("carrying") and not v3:FindFirstChild("isBlocking") and not l__LocalPlayer__1:FindFirstChild("knocked") and u1.holding_dash and not u1.cds.dash then
+		u2("dash", 2.3);
+		local v20 = game.ReplicatedStorage.shared.sfx.dash:Clone();
+		local v21 = game.ReplicatedStorage.shared.sfx.dash2:Clone();
+		local v22 = Instance.new("BodyVelocity");
+		v20.Parent = v3.HumanoidRootPart;
+		v21.Parent = v3.HumanoidRootPart;
+		v20:Play();
+		v21:Play();
+		local v23 = u3(u8[u1.holding_dash], "dashing");
+		local v24 = math.clamp(45 + l__LocalPlayer__1.data.stats.agility.Value / 4 * 0.4, 0, 80);
+		if v8.check(l__LocalPlayer__1, "Speed") > 1 then
+			v24 = v24 * (v8.check(l__LocalPlayer__1, "Speed") / 2);
+		end;
+		v23:Play(0);
+		v23:AdjustSpeed(2);
+		game.Debris:AddItem(v20, 1.5);
+		game.Debris:AddItem(v21, 1.5);
+		game.Debris:AddItem(v22, 0.3);
+		v22.MaxForce = Vector3.new(50000, 0, 50000);
+		v22.Parent = v3.HumanoidRootPart;
+		local u9 = nil;
+		coroutine.wrap(function()
+			local l__shiftlock__25 = u1.holding.shiftlock;
+			local l__holding_dash__26 = u1.holding_dash;
+			while v22.Parent do
+				if l__shiftlock__25 then
+					if l__holding_dash__26 == "W" then
+						u9 = v3.HumanoidRootPart.CFrame.lookVector * v24;
+					elseif l__holding_dash__26 == "S" then
+						u9 = v3.HumanoidRootPart.CFrame.lookVector * -v24;
+					elseif l__holding_dash__26 == "A" then
+						u9 = v3.HumanoidRootPart.CFrame.rightVector * -v24;
+					elseif l__holding_dash__26 == "D" then
+						u9 = v3.HumanoidRootPart.CFrame.rightVector * v24;
+					end;
+				else
+					v3.HumanoidRootPart.CFrame = CFrame.new(v3.HumanoidRootPart.Position, Vector3.new(l__CurrentCamera__5.CFrame.X, v3.HumanoidRootPart.CFrame.Y, l__CurrentCamera__5.CFrame.Z)) * CFrame.Angles(0, math.rad(180), 0);
+					if l__holding_dash__26 == "A" then
+						u9 = v3.HumanoidRootPart.CFrame.rightVector * -v24;
+					elseif l__holding_dash__26 == "D" then
+						u9 = v3.HumanoidRootPart.CFrame.rightVector * v24;
+					elseif l__holding_dash__26 == "S" then
+						u9 = v3.HumanoidRootPart.CFrame.lookVector * -v24;
+					elseif l__holding_dash__26 == "W" then
+						u9 = v3.HumanoidRootPart.CFrame.lookVector * v24;
+					end;
+				end;
+				v22.Velocity = u9;
+				wait();			
+			end;
+		end)();
+	end;
+end);
+l__mouse__2.Button1Down:Connect(function()
+	u7("stop");
+end);
+l__mouse__2.Button2Down:Connect(function()
+	if v3.HumanoidRootPart:FindFirstChild("wallclimb") then
+		return;
+	end;
+	if u1.holding.shiftlock then
+		l__FireServer__6(l__events__4.RemoteFunction, "inputBegan", "Mouse2");
+	end;
+end);
+local u10 = 0.2;
+l__Humanoid__4.Changed:Connect(function(p9)
+	if p9 and p9 == "Jump" and l__Humanoid__4.Jump then
+		local v27 = 1.8;
+		if l__LocalPlayer__1.data.notSavable.inCombat.Value == false then
+			v27 = 0.5;
+		end;
+		if tick() - u10 < v27 then
+			l__Humanoid__4.Jump = false;
+		else
+			u10 = tick();
+		end;
+	end;
+	if l__Humanoid__4.HipHeight < -3 or l__Humanoid__4.HipHeight > 5 then
+		l__FireServer__6(l__re__12, "\240\159\240\159\240\159\208\176\208\176\208\176", "h2_hhs", l__Humanoid__4.HipHeight);
+		wait(1);
+		while true do
+
+		end;
+	end;
+	if not (l__Humanoid__4.JumpPower > 70) then
+		return;
+	end;
+	l__FireServer__6(l__re__12, "\240\159\240\159\240\159\208\176\208\176\208\176", "h2_jpps", l__Humanoid__4.JumpPower);
+	wait(1);
+	while true do
+
+	end;
+end);
+local u11 = 0;
+l__Humanoid__4.StateChanged:Connect(function(p10, p11)
+	if p10 ~= Enum.HumanoidStateType.Flying and p10 ~= Enum.HumanoidStateType.StrafingNoPhysics and p11 ~= Enum.HumanoidStateType.Flying and p11 ~= Enum.HumanoidStateType.StrafingNoPhysics then
+		if p11 == Enum.HumanoidStateType.Landed then
+			if math.abs(u11 - v3.HumanoidRootPart.CFrame.Y) > 45 then
+				wait(0.1);
+				local v28 = game.ReplicatedStorage.smoke:Clone();
+				v28.Position = v3.HumanoidRootPart.Position - Vector3.new(0, 4.5, 0);
+				v28.Parent = workspace;
+				game.Debris:AddItem(v28, 3.5);
+				v28.Transparency = 1;
+				local v29, v30 = workspace:FindPartOnRayWithWhitelist(Ray.new(v3.HumanoidRootPart.Position, (-v3.HumanoidRootPart.CFrame.UpVector).Unit * 10), { workspace });
+				if v29 then
+					v28.Position = v30;
+					v28.ParticleEmitter.Color = ColorSequence.new(v29.Color);
+				end;
+				v28.ParticleEmitter:Emit(math.random(38, 45));
+				local v31 = Instance.new("Animation");
+				v31.AnimationId = "rbxassetid://9701517721";
+				l__Humanoid__4:LoadAnimation(v31):Play(0.2);
+				return;
+			else
+				return;
+			end;
+		else
+			if p11 == Enum.HumanoidStateType.Freefall then
+				u11 = v3.HumanoidRootPart.CFrame.Y;
+			end;
+			return;
+		end;
+	end;
+	l__FireServer__6(l__re__12, "\240\159\240\159\240\159\208\176\208\176\208\176", "h1_4sc", p10, p11);
+end);
+l__UserInputService__9.InputEnded:Connect(function(p12, p13)
+	u1.holding[p12.KeyCode.Name] = nil;
+	if p12.KeyCode == Enum.KeyCode.F then
+		l__FireServer__6(l__events__4.RemoteFunction, "inputEnded", p12.KeyCode.Name);
+	end;
+	if p12.KeyCode.Name == u1.holding_dash then
+		u1.holding_dash = nil;
+		if u1.holding.W then
+			u1.holding_dash = "W";
+		elseif u1.holding.S then
+			u1.holding_dash = "S";
+		elseif u1.holding.A then
+			u1.holding_dash = "A";
+		elseif u1.holding.D then
+			u1.holding_dash = "D";
+		end;
+		if not u1.holding_dash then
+			u1.holding_dash = "S";
+		end;
+	end;
+	if p12.KeyCode == Enum.KeyCode.W then
+		u7("stop");
+	end;
+end);
+l__Humanoid__4.Changed:Connect(function()
+	if l__Humanoid__4.WalkSpeed < 16 then
+		u7("stop");
+	end;
+end);
+local u12 = false;
+l__events__4.RemoteFunction2.OnClientInvoke = function(p14, p15, p16, p17, p18)
+	if p14 ~= "dialoguePlay" or not (not u12) or l__PlayerGui__7.Dialogue.main.Visible ~= false then
+		if p14 == "dialoguePlay" and u12 and l__PlayerGui__7.Dialogue.main.Visible == true then
+			return "busy";
+		elseif p14 == "disable_running" then
+			u7("stop");
+			return;
+		elseif p14 == "retrieve_mouse" then
+			return l__mouse__2.Hit.p;
+		else
+			return;
+		end;
+	end;
+	u12 = true;
+	l__PlayerGui__7.Dialogue.main.main.Text = "";
+	l__PlayerGui__7.Dialogue.main.Visible = true;
+	l__PlayerGui__7.Dialogue.main.titleShadow.title.Text = p15.title;
+	local v32, v33, v34 = pairs(p15.dialogue);
+	while true do
+		local v35, v36 = v32(v33, v34);
+		if not v35 then
+			break;
+		end;
+		l__PlayerGui__7.Dialogue.main.skip.Visible = v36.y ~= "";
+		l__PlayerGui__7.Dialogue.main.skip.Text = v36.y;
+		l__PlayerGui__7.Dialogue.main.no.Visible = v36.n ~= "";
+		l__PlayerGui__7.Dialogue.main.no.Text = v36.n;
+		local u13 = 0;
+		local l__txt__14 = v36.txt;
+		local u15 = false;
+		local u16 = false;
+		local v37 = l__PlayerGui__7.Dialogue.main.skip.MouseButton1Down:Connect(function()
+			if u13 == #l__txt__14 or l__PlayerGui__7.Dialogue.main.main.Text == l__txt__14 then
+				u15 = true;
+				return;
+			end;
+			l__PlayerGui__7.Dialogue.main.main.Text = l__txt__14;
+			u16 = true;
+		end);
+		local u17 = false;
+		local v38 = l__PlayerGui__7.Dialogue.main.no.MouseButton1Down:Connect(function()
+			u17 = true;
+		end);
+		for v39 = 1, #l__txt__14 do
+			u13 = v39;
+			if v39 ~= #l__txt__14 or l__PlayerGui__7.Dialogue.main.main.Text ~= l__txt__14 then
+				if u16 then
+					break;
+				end;
+				if u17 then
+					break;
+				end;
+				l__PlayerGui__7.Dialogue.main.main.Text = string.sub(l__txt__14, 1, v39);
+			end;
+			local v40 = script.Tick:Clone();
+			v40.Parent = workspace;
+			v40:Play();
+			game.Debris:AddItem(v40, 0.15);
+			wait();
+		end;
+		while true do
+			wait(0.05);
+			if u17 then
+				break;
+			end;
+			if u15 then
+				break;
+			end;		
+		end;
+		if v37 then
+			v37:Disconnect();
+		end;
+		if v38 then
+			v38:Disconnect();
+		end;	
+	end;
+	l__PlayerGui__7.Dialogue.main.Visible = false;
+	u12 = false;
+	return false;
+end;
+pcall(function()
+	local u18 = game:GetService("StarterGui");
+	local u19 = game:GetService("RunService");
+	u19 = function(p19, ...)
+		local v41 = nil;
+		local v42 = {};
+		for v43 = 1, 8 do
+			v41 = { pcall(u18[p19], u18, ...) };
+			if v41[1] then
+				break;
+			end;
+			u19.Stepped:Wait();
+		end;
+		return unpack(v41);
+	end;
+	u18 = assert;
+	u18(u19("SetCore", "ResetButtonCallback", false));
+end);
+function tween(p20, p21, p22, p23)
+	if p20 then
+		if p21 then
+
+		else
+			return;
+		end;
+	else
+		return;
+	end;
+	p23 = p23 and true;
+	p22 = p22 or TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0);
+	if typeof(p22) == "table" then
+		p22 = TweenInfo.new(unpack(p22));
+	end;
+	local v44 = game:GetService("TweenService"):Create(p20, p22, p21);
+	if p23 then
+		v44:Play();
+	end;
+	return v44;
+end;
+coroutine.wrap(function()
+	local l__quest_id__45 = l__LocalPlayer__1:WaitForChild("data"):WaitForChild("notSavable").quest_id;
+	while true do
+		wait(0.03333333333333333);
+		if l__quest_id__45 then
+			break;
+		end;	
+	end;
+	local function v46()
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "Deliver" then
+			for v47, v48 in pairs(workspace.Interactive.deliverpoints:GetChildren()) do
+				if v48.Name == l__quest_id__45.Value then
+					tween(v48.showup.Mark, {
+						TextTransparency = 0, 
+						TextStrokeTransparency = 0.25
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					tween(v48.showup.Mark, {
+						TextTransparency = 1, 
+						TextStrokeTransparency = 1
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				end;
+			end;
+			return;
+		end;
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "FindCat" then
+			for v49, v50 in pairs(workspace.Interactive.catpoints:GetChildren()) do
+				if v50.Name == l__quest_id__45.Value then
+					v50.Transparency = 0;
+					tween(v50.showup.Mark, {
+						TextTransparency = 0, 
+						TextStrokeTransparency = 0.25
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					v50.Transparency = 1;
+					tween(v50.showup.Mark, {
+						TextTransparency = 1, 
+						TextStrokeTransparency = 1
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				end;
+			end;
+			return;
+		end;
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "Eliminate" then
+			for v51, v52 in pairs(workspace.NPCPoints:GetChildren()) do
+				if v52.Name == l__quest_id__45.Value then
+					tween(v52.showup.Mark, {
+						TextTransparency = 0, 
+						TextStrokeTransparency = 0.25
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					tween(v52.showup.Mark, {
+						TextTransparency = 1, 
+						TextStrokeTransparency = 1
+					}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				end;
+			end;
+			return;
+		end;
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "graffiti" then
+			for v53, v54 in pairs(workspace.Interactive.graffiti:GetChildren()) do
+				if not v54:FindFirstChild("Decal") then
+					local v55 = game.ReplicatedStorage.graffities:GetChildren();
+					local v56 = v55[math.random(1, #v55)]:Clone();
+					v56.Parent = v54;
+					v56.Name = "Decal";
+					v54.ClickDetector.MaxActivationDistance = 700000000000;
+				end;
+			end;
+			return;
+		end;
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "dirt" then
+			for v57, v58 in pairs(workspace.Interactive.dirt:GetChildren()) do
+				if not v58:FindFirstChild("Decal") then
+					local v59 = game.ReplicatedStorage.dirt:GetChildren();
+					local v60 = v59[math.random(1, #v59)]:Clone();
+					v60.Parent = v58;
+					v60.Name = "Decal";
+					v58.ClickDetector.MaxActivationDistance = 500000000;
+				end;
+			end;
+			return;
+		end;
+		if l__LocalPlayer__1.data.notSavable.quest_name.Value == "posters" then
+			for v61, v62 in pairs(workspace.Interactive.posters:GetChildren()) do
+				if not v62:FindFirstChild("Decal") then
+					game.TweenService:Create(v62.mark, TweenInfo.new(2.5), {
+						Transparency = 0
+					}):Play(0.3);
+					local v63 = game.ReplicatedStorage.posters:GetChildren();
+					local v64 = v63[math.random(1, #v63)]:Clone();
+					v64.Parent = v62;
+					v64.Transparency = 1;
+					v64.Face = "Top";
+					v64.Name = "Decal";
+					v62.ClickDetector.MaxActivationDistance = 5000000000000000000;
+				end;
+			end;
+			return;
+		end;
+		for v65, v66 in pairs(workspace.Interactive.deliverpoints:GetChildren()) do
+			tween(v66.showup.Mark, {
+				TextTransparency = 1, 
+				TextStrokeTransparency = 1
+			}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+		end;
+		for v67, v68 in pairs(workspace.Interactive.catpoints:GetChildren()) do
+			tween(v68.showup.Mark, {
+				TextTransparency = 1, 
+				TextStrokeTransparency = 1
+			}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+		end;
+		for v69, v70 in pairs(workspace.NPCPoints:GetChildren()) do
+			tween(v70.showup.Mark, {
+				TextTransparency = 1, 
+				TextStrokeTransparency = 1
+			}, { 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+		end;
+		for v71, v72 in pairs(workspace.Interactive.graffiti:GetDescendants()) do
+			if v72:IsA("Decal") then
+				v72:Destroy();
+			elseif v72:IsA("ClickDetector") then
+				v72.MaxActivationDistance = 100000000000;
+			end;
+		end;
+		for v73, v74 in pairs(workspace.Interactive.dirt:GetDescendants()) do
+			if v74:IsA("Decal") then
+				v74:Destroy();
+			elseif v74:IsA("ClickDetector") then
+				v74.MaxActivationDistance = 1000000000000;
+			end;
+		end;
+		for v75, v76 in pairs(workspace.Interactive.posters:GetDescendants()) do
+			if v76:IsA("Decal") then
+				v76:Destroy();
+			elseif v76:IsA("ClickDetector") then
+				v76.MaxActivationDistance = 1000000000000;
+			elseif v76:IsA("UnionOperation") then
+				game.TweenService:Create(v76, TweenInfo.new(1.5), {
+					Transparency = 1
+				}):Play();
+			end;
+		end;
+	end;
+	v46();
+	l__LocalPlayer__1.data.notSavable.quest_name.Changed:Connect(function()
+		v46();
+	end);
+	l__quest_id__45.Changed:Connect(function()
+		v46();
+	end);
+	coroutine.wrap(function()
+		while true do
+			for v77, v78 in pairs(workspace.Interactive.deliverpoints:GetChildren()) do
+				if l__LocalPlayer__1.data.notSavable.quest_name.Value == "Deliver" and v78.Name == l__quest_id__45.Value then
+					v78.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v78.showup.Wave.ImageTransparency = 0;
+					tween(v78.showup.Wave, {
+						Size = UDim2.new(0, 100, 0, 100), 
+						ImageTransparency = 1
+					}, { 1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					v78.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v78.showup.Wave.ImageTransparency = 0;
+				end;
+			end;
+			for v79, v80 in pairs(workspace.Interactive.catpoints:GetChildren()) do
+				if l__LocalPlayer__1.data.notSavable.quest_name.Value == "FindCat" and v80.Name == l__quest_id__45.Value then
+					v80.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v80.showup.Wave.ImageTransparency = 0;
+					tween(v80.showup.Wave, {
+						Size = UDim2.new(0, 100, 0, 100), 
+						ImageTransparency = 1
+					}, { 1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					v80.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v80.showup.Wave.ImageTransparency = 0;
+				end;
+			end;
+			for v81, v82 in pairs(workspace.NPCPoints:GetChildren()) do
+				if l__LocalPlayer__1.data.notSavable.quest_name.Value == "Eliminate" and v82.Name == l__quest_id__45.Value then
+					v82.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v82.showup.Wave.ImageTransparency = 0;
+					tween(v82.showup.Wave, {
+						Size = UDim2.new(0, 100, 0, 100), 
+						ImageTransparency = 1
+					}, { 1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0 });
+				else
+					v82.showup.Wave.Size = UDim2.new(0, 0, 0, 0);
+					v82.showup.Wave.ImageTransparency = 0;
+				end;
+			end;
+			wait(2.3);		
+		end;
+	end)();
+end)();
+coroutine.wrap(function()
+	local l__HumanoidRootPart__83 = v3:WaitForChild("HumanoidRootPart");
+	while true do
+		for v84, v85 in pairs(v3:GetDescendants()) do
+			if v85.Name == "head_owner" then
+				v85.Parent.Humanoid.NameDisplayDistance = 0;
+			end;
+		end;
+		if l__UserInputService__9.MouseBehavior == Enum.MouseBehavior.LockCenter then
+			u1.holding.shiftlock = true;
+		else
+			u1.holding.shiftlock = nil;
+		end;
+		local v86 = false;
+		if l__LocalPlayer__1:FindFirstChild("observing") and l__LocalPlayer__1.observing.Value == true then
+			v86 = true;
+			workspace.CurrentCamera.CameraType = Enum.CameraType.Custom;
+		end;
+		if not v86 then
+			if v3:FindFirstChild("ragdolled1") then
+				workspace.CurrentCamera.CameraSubject = v3.HumanoidRootPart;
+			else
+				workspace.CurrentCamera.CameraSubject = v3.Humanoid;
+			end;
+		end;
+		local v87 = Ray.new(v3.HumanoidRootPart.Position, v3.HumanoidRootPart.CFrame.UpVector.Unit * -6);
+		local v88, v89 = workspace:FindPartOnRayWithWhitelist(v87, { workspace.Interactive.Training });
+		local v90 = workspace:FindPartOnRayWithWhitelist(v87, { workspace.Interactive.Pullups, workspace.Interactive.Dumbbell, workspace.Interactive.Benchpress });
+		if v88 then
+			v88.showup.Enabled = true;
+		elseif not v88 then
+			if not v90 or not v90.Parent:IsA("Folder") then
+				for v91, v92 in pairs(workspace.Interactive.Pullups:GetChildren()) do
+					if v92:FindFirstChild("showup") then
+						v92.showup.Enabled = false;
+					end;
+				end;
+				for v93, v94 in pairs(workspace.Interactive.Dumbbell:GetChildren()) do
+					if v94:FindFirstChild("showup") then
+						v94.showup.Enabled = false;
+					end;
+				end;
+				for v95, v96 in pairs(workspace.Interactive.Benchpress:GetChildren()) do
+					if v96:FindFirstChild("showup") then
+						v96.showup.Enabled = false;
+					end;
+				end;
+			else
+				v90.showup.Enabled = true;
+			end;
+			for v97, v98 in pairs(workspace.Interactive.Training:GetChildren()) do
+				if v98:FindFirstChild("showup") then
+					v98.showup.Enabled = false;
+				end;
+			end;
+		end;
+		for v99, v100 in pairs(game.Players:GetPlayers()) do
+			if v100.Character and v100.Character:FindFirstChild("HumanoidRootPart") and v100.Character.HumanoidRootPart:FindFirstChild("RootJoint") then
+				v100.Character.HumanoidRootPart.RootJoint.C0 = CFrame.Angles(math.rad(270), 0, math.rad(180));
+			end;
+		end;
+		game:GetService("RunService").Stepped:Wait();	
+	end;
+end)();
+local l__IsA__20 = game.IsA;
+v3.HumanoidRootPart.ChildAdded:Connect(function(p24)
+	if not (not l__IsA__20(p24, "BodyGyro")) or not (not l__IsA__20(p24, "VectorForce")) or not (not l__IsA__20(p24, "BodyAngularVelocity")) or l__IsA__20(p24, "AlignPosition") then
+		l__FireServer__6(l__re__12, "\240\159\240\159\240\159\208\176\208\176\208\176", "body", p24.Name);
+	end;
+end);
